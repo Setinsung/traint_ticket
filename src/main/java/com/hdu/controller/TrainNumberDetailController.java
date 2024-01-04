@@ -5,12 +5,11 @@ import com.hdu.dto.TrainNumberDetailDto;
 import com.hdu.model.TrainNumber;
 import com.hdu.model.TrainNumberDetail;
 import com.hdu.model.TrainStation;
+import com.hdu.reqparm.TrainNumberDetailParam;
 import com.hdu.service.TrainNumberDetailService;
 import com.hdu.service.TrainNumberService;
 import com.hdu.service.TrainStationService;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -54,4 +53,15 @@ public class TrainNumberDetailController {
         return JsonData.success(dtoList);
     }
 
+    @PostMapping
+    public JsonData save(TrainNumberDetailParam param){
+        trainNumberDetailService.save(param);
+        return JsonData.success();
+    }
+
+    @DeleteMapping
+    public JsonData delete(@RequestParam("id") Integer id){
+        trainNumberDetailService.delete(id);
+        return JsonData.success();
+    }
 }
