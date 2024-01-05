@@ -22,5 +22,10 @@ public class TransactionService {
             // 批量插入
             trainSeatMapper.batchInsert(partitionList);
         });
+//        TrainSeat trainSeat = list.get(0);
+//        trainSeat.setId(1L);
+//        trainSeat.setUserId(1L);
+//        trainSeat.setTravellerId(2L);
+//        trainSeatMapper.insertSelective(trainSeat);
     }
 }

@@ -61,10 +61,10 @@ public class SeatDataSourceConfig {
 
     @Bean(name = "trainSeatShardingDataSource")
     public DataSource trainSeatShardingDataSource(@Qualifier(DataSources.TRAIN_SEAT_DB_1) DataSource trainSeatDB1,
-                                                   @Qualifier(DataSources.TRAIN_SEAT_DB_2) DataSource trainSeatDB2,
-                                                   @Qualifier(DataSources.TRAIN_SEAT_DB_3) DataSource trainSeatDB3,
-                                                   @Qualifier(DataSources.TRAIN_SEAT_DB_4) DataSource trainSeatDB4,
-                                                   @Qualifier(DataSources.TRAIN_SEAT_DB_5) DataSource trainSeatDB5) throws SQLException {
+                                                  @Qualifier(DataSources.TRAIN_SEAT_DB_2) DataSource trainSeatDB2,
+                                                  @Qualifier(DataSources.TRAIN_SEAT_DB_3) DataSource trainSeatDB3,
+                                                  @Qualifier(DataSources.TRAIN_SEAT_DB_4) DataSource trainSeatDB4,
+                                                  @Qualifier(DataSources.TRAIN_SEAT_DB_5) DataSource trainSeatDB5) throws SQLException {
         ShardingRuleConfiguration shardingRuleConfiguration = new ShardingRuleConfiguration();
         // 设置分库分表映射
         Map<String,DataSource> dataSourceMap = Maps.newHashMap();

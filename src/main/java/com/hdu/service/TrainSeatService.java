@@ -4,6 +4,7 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Table;
+import com.hdu.common.PageQuery;
 import com.hdu.common.TrainSeatLevel;
 import com.hdu.common.TrainType;
 import com.hdu.common.TrainTypeSeatConstant;
@@ -14,8 +15,10 @@ import com.hdu.model.TrainNumber;
 import com.hdu.model.TrainNumberDetail;
 import com.hdu.model.TrainSeat;
 import com.hdu.reqparm.GenerateTicketParam;
+import com.hdu.reqparm.TrainSeatSearchParam;
 import com.hdu.seatDao.TrainSeatMapper;
 import com.hdu.utils.BeanValidator;
+import com.hdu.utils.StringUtil;
 import javafx.util.Pair;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Service;
@@ -38,6 +41,27 @@ public class TrainSeatService {
     @Resource
     private TransactionService transactionService;
 
+    public List<TrainSeat> searchList(TrainSeatSearchParam param, PageQuery pageQuery) {
+        BeanValidator.check(param);
+        BeanValidator.check(pageQuery);
+        TrainNumber trainNumber = trainNumberMapper.findByName(param.getTrainNumber());
+        if (trainNumber == null) {
+            throw new BusinessException("查询的车次不存在");
+        }
+        return trainSeatMapper.searchList(trainNumber.getId(), param.getTicket(), param.getStatus(), param.getCarriageNum(),
+                param.getRowNum(), param.getSeatNum(), pageQuery.getOffset(), pageQuery.getPageSize());
+    }
+
+    public int countList(TrainSeatSearchParam param) {
+        BeanValidator.check(param);
+        TrainNumber trainNumber = trainNumberMapper.findByName(param.getTrainNumber());
+        if (trainNumber == null) {
+            throw new BusinessException("查询的车次不存在");
+        }
+        return trainSeatMapper.countList(trainNumber.getId(), param.getTicket(), param.getStatus(), param.getCarriageNum(),
+                param.getRowNum(), param.getSeatNum());
+    }
+
     public void generate(GenerateTicketParam param) {
         BeanValidator.check(param);
         // 车次
@@ -50,7 +74,7 @@ public class TrainSeatService {
         if (CollectionUtils.isEmpty(detailList)) {
             throw new BusinessException("该车次暂无详情，请添加详情");
         }
-        // Collections.sort(detailList, Comparator.comparingInt(TrainNumberDetail::getStationIndex));
+//        Collections.sort(detailList, Comparator.comparingInt(TrainNumberDetail::getStationIndex));
         // 座位类型
         TrainType trainType = TrainType.valueOf(trainNumber.getTrainType());
         // 座位配置
@@ -108,7 +132,7 @@ public class TrainSeatService {
         transactionService.batchInsertSeat(list);
     }
 
-    // 以下方式错误
+    // 这种写法是错误的，请一定重视
     @Transactional(rollbackFor = Exception.class)
     public void batchInsertSeat(List<TrainSeat> list) {
         List<List<TrainSeat>> trainTicketPartitionList = Lists.partition(list, 1000);
@@ -132,24 +156,24 @@ public class TrainSeatService {
             throw new BusinessException("价钱解析出错，请检查车站详情配置");
         }
     }
+
+//    @Transactional(rollbackFor = Exception.class)
+//    public void publish(PublishTicketParam param) {
+//        BeanValidator.check(param);
+//        TrainNumber trainNumber = trainNumberMapper.findByName(param.getTrainNumber());
+//        if (trainNumber == null) {
+//            throw new BusinessException("车次不存在");
+//        }
+//        List<Long> trainSeatIdList = StringUtil.splitToListLong(param.getTrainSeatIds());
+//        List<List<Long>> idPartitionList = Lists.partition(trainSeatIdList, 1000);
+//        for (List<Long> partitionList : idPartitionList) {
+//            int count = trainSeatMapper.batchPublish(trainNumber.getId(),partitionList);
+//            if (count!=partitionList.size()){
+//                throw new BusinessException("部分座位不满足条件，请重新查询【初始】状态的座位进行放票");
+//            }
+//        }
+//    }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

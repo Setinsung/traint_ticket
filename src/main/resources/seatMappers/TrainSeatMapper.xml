@@ -20,7 +20,7 @@
         <result column="to_station_id" property="toStationId" jdbcType="INTEGER"/>
     </resultMap>
     <sql id="Base_Column_List">
-    id, ticket, user_id, traveller_id, train_number_id, carriage_number, row_number, 
+    id, ticket, user_id, traveller_id, train_number_id, carriage_number, `row_number`,
     seat_number, seat_level, train_start, train_end, money, show_number, status, from_station_id, 
     to_station_id
   </sql>
@@ -36,8 +36,8 @@
   </delete>
     <insert id="insert" parameterType="com.hdu.model.TrainSeat">
     insert into train_seat (id, ticket, user_id, 
-      traveller_id, train_number_id, carriage_number, 
-      row_number, seat_number, seat_level, 
+      traveller_id, train_number_id, carriage_number,
+      `row_number`, seat_number, seat_level,
       train_start, train_end, money, 
       show_number, status, from_station_id, 
       to_station_id)
@@ -70,7 +70,7 @@
                 carriage_number,
             </if>
             <if test="rowNumber != null">
-                row_number,
+                `row_number`,
             </if>
             <if test="seatNumber != null">
                 seat_number,
@@ -170,7 +170,7 @@
                 carriage_number = #{carriageNumber,jdbcType=INTEGER},
             </if>
             <if test="rowNumber != null">
-                row_number = #{rowNumber,jdbcType=INTEGER},
+                `row_number` = #{rowNumber,jdbcType=INTEGER},
             </if>
             <if test="seatNumber != null">
                 seat_number = #{seatNumber,jdbcType=INTEGER},
@@ -209,7 +209,7 @@
       traveller_id = #{travellerId,jdbcType=BIGINT},
       train_number_id = #{trainNumberId,jdbcType=INTEGER},
       carriage_number = #{carriageNumber,jdbcType=INTEGER},
-      row_number = #{rowNumber,jdbcType=INTEGER},
+      `row_number` = #{rowNumber,jdbcType=INTEGER},
       seat_number = #{seatNumber,jdbcType=INTEGER},
       seat_level = #{seatLevel,jdbcType=INTEGER},
       train_start = #{trainStart,jdbcType=TIMESTAMP},
@@ -222,11 +222,7 @@
     where id = #{id,jdbcType=BIGINT}
   </update>
     <insert id="batchInsert" parameterType="list">
-        insert into train_seat (ticket, train_number_id, carriage_number,
-        row_number, seat_number, seat_level,
-        train_start, train_end, money,
-        show_number, status, from_station_id,
-        to_station_id)
+        insert into train_seat (ticket, train_number_id, carriage_number,`row_number`, seat_number, seat_level,train_start, train_end, money,show_number, status, from_station_id,to_station_id)
         values
         <foreach collection="list" item="detail" separator=",">
             (#{detail.ticket,jdbcType=VARCHAR}, #{detail.trainNumberId,jdbcType=INTEGER},
@@ -254,7 +250,7 @@
             AND carriage_number = #{carriageNum}
         </if>
         <if test="rowNum != null">
-            AND row_number = #{rowNum}
+            AND `row_number` = #{rowNum}
         </if>
         <if test="seatNum != null">
             AND seat_number = #{seatNum}
@@ -274,7 +270,7 @@
             AND carriage_number = #{carriageNum}
         </if>
         <if test="rowNum != null">
-            AND row_number = #{rowNum}
+            AND `row_number` = #{rowNum}
         </if>
         <if test="seatNum != null">
             AND seat_number = #{seatNum}
@@ -296,7 +292,7 @@
         FROM train_seat
         WHERE train_number_id = #{trainNumberId}
         and carriage_number = #{carriageNum}
-        and row_number = #{rowNum}
+        and `row_number` = #{rowNum}
         and seat_number = #{seatNum}
         and from_station_id in
         <foreach collection="fromStationIdList" item="fromStationId" open="(" close=")" separator=",">
@@ -324,7 +320,7 @@
         </foreach>
         and train_number_id = #{trainSeat.trainNumberId}
         and carriage_number = #{trainSeat.carriageNumber}
-        and row_number = #{trainSeat.rowNumber}
+        and `row_number` = #{trainSeat.rowNumber}
         and seat_number = #{trainSeat.seatNumber}
         and traveller_id = #{trainSeat.travellerId}
         and user_id = #{trainSeat.userId}
@@ -335,7 +331,7 @@
     set status = 1,travller_id = 0,user_id = 0
     where train_number_id = #{trainNum}
     and carriage_number = #{carriageNum}
-    and row_number = #{rowNum}
+    and `row_number` = #{rowNum}
     and seat_number = #{seatNum}
     and traveller_id = #{travellerId}
     and user_id = #{userId}

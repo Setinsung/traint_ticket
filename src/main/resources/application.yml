@@ -6,48 +6,48 @@ spring:
   datasource-master:
     type: com.zaxxer.hikari.HikariDataSource
     driver-class-name: com.mysql.jdbc.Driver
-    jdbc-url: jdbc:mysql://localhost:3306/train_ticket?useSSL=false
+    jdbc-url: jdbc:mysql://localhost:3306/train_ticket?useSSL=false&useUnicode=true&connectTimeout=1000&socketTimeout=60000&allowMultiQueries=true&allowPublicKeyRetrieval=true&serverTimezone=UTC
     username: root
     password: 1q2w3e4r
   datasource-slave:
     type: com.zaxxer.hikari.HikariDataSource
     driver-class-name: com.mysql.jdbc.Driver
-    jdbc-url: jdbc:mysql://localhost:3306/train_ticket?useSSL=false
+    jdbc-url: jdbc:mysql://localhost:3306/train_ticket?useSSL=false&useUnicode=true&connectTimeout=1000&socketTimeout=60000&allowMultiQueries=true&allowPublicKeyRetrieval=true&serverTimezone=UTC
     username: root
     password: 1q2w3e4r
   datasource-order:
     type: com.zaxxer.hikari.HikariDataSource
     driver-class-name: com.mysql.jdbc.Driver
-    jdbc-url: jdbc:mysql://localhost:3306/train_ticket_order?useSSL=false
+    jdbc-url: jdbc:mysql://localhost:3306/train_ticket_order?useSSL=false&useUnicode=true&connectTimeout=1000&socketTimeout=60000&allowMultiQueries=true&allowPublicKeyRetrieval=true&serverTimezone=UTC
     username: root
     password: 1q2w3e4r
   datasource-seat-1:
     type: com.zaxxer.hikari.HikariDataSource
     driver-class-name: com.mysql.jdbc.Driver
-    jdbc-url: jdbc:mysql://localhost:3306/train_ticket_seat01?useSSL=false
+    jdbc-url: jdbc:mysql://localhost:3306/train_ticket_seat01?useSSL=false&useUnicode=true&connectTimeout=1000&socketTimeout=60000&allowMultiQueries=true&allowPublicKeyRetrieval=true&serverTimezone=UTC
     username: root
     password: 1q2w3e4r
   datasource-seat-2:
     type: com.zaxxer.hikari.HikariDataSource
     driver-class-name: com.mysql.jdbc.Driver
-    jdbc-url: jdbc:mysql://localhost:3306/train_ticket_seat02?useSSL=false
+    jdbc-url: jdbc:mysql://localhost:3306/train_ticket_seat02?useSSL=false&useUnicode=true&connectTimeout=1000&socketTimeout=60000&allowMultiQueries=true&allowPublicKeyRetrieval=true&serverTimezone=UTC
     username: root
     password: 1q2w3e4r
   datasource-seat-3:
     type: com.zaxxer.hikari.HikariDataSource
     driver-class-name: com.mysql.jdbc.Driver
-    jdbc-url: jdbc:mysql://localhost:3306/train_ticket_seat03?useSSL=false
+    jdbc-url: jdbc:mysql://localhost:3306/train_ticket_seat03?useSSL=false&useUnicode=true&connectTimeout=1000&socketTimeout=60000&allowMultiQueries=true&allowPublicKeyRetrieval=true&serverTimezone=UTC
     username: root
     password: 1q2w3e4r
   datasource-seat-4:
     type: com.zaxxer.hikari.HikariDataSource
     driver-class-name: com.mysql.jdbc.Driver
-    jdbc-url: jdbc:mysql://localhost:3306/train_ticket_seat04?useSSL=false
+    jdbc-url: jdbc:mysql://localhost:3306/train_ticket_seat04?useSSL=false&useUnicode=true&connectTimeout=1000&socketTimeout=60000&allowMultiQueries=true&allowPublicKeyRetrieval=true&serverTimezone=UTC
     username: root
     password: 1q2w3e4r
   datasource-seat-5:
     type: com.zaxxer.hikari.HikariDataSource
     driver-class-name: com.mysql.jdbc.Driver
-    jdbc-url: jdbc:mysql://localhost:3306/train_ticket_seat05?useSSL=false
+    jdbc-url: jdbc:mysql://localhost:3306/train_ticket_seat05?useSSL=false&useUnicode=true&connectTimeout=1000&socketTimeout=60000&allowMultiQueries=true&allowPublicKeyRetrieval=true&serverTimezone=UTC
     username: root
     password: 1q2w3e4r
