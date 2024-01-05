@@ -7,6 +7,7 @@ import com.hdu.dto.TrainSeatDto;
 import com.hdu.model.TrainSeat;
 import com.hdu.model.TrainStation;
 import com.hdu.reqparm.GenerateTicketParam;
+import com.hdu.reqparm.PublishTicketParam;
 import com.hdu.reqparm.TrainSeatSearchParam;
 import com.hdu.service.TrainSeatService;
 import com.hdu.service.TrainStationService;
@@ -68,6 +69,12 @@ public class TrainSeatController {
     @GetMapping("/generate")
     public JsonData generate(GenerateTicketParam param) {
         trainSeatService.generate(param);
+        return JsonData.success();
+    }
+
+    @GetMapping("/publish")
+    public JsonData publish(PublishTicketParam param){
+        trainSeatService.publish(param);
         return JsonData.success();
     }
 

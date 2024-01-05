@@ -15,6 +15,7 @@ import com.hdu.model.TrainNumber;
 import com.hdu.model.TrainNumberDetail;
 import com.hdu.model.TrainSeat;
 import com.hdu.reqparm.GenerateTicketParam;
+import com.hdu.reqparm.PublishTicketParam;
 import com.hdu.reqparm.TrainSeatSearchParam;
 import com.hdu.seatDao.TrainSeatMapper;
 import com.hdu.utils.BeanValidator;
@@ -157,22 +158,23 @@ public class TrainSeatService {
         }
     }
 
-//    @Transactional(rollbackFor = Exception.class)
-//    public void publish(PublishTicketParam param) {
-//        BeanValidator.check(param);
-//        TrainNumber trainNumber = trainNumberMapper.findByName(param.getTrainNumber());
-//        if (trainNumber == null) {
-//            throw new BusinessException("车次不存在");
-//        }
-//        List<Long> trainSeatIdList = StringUtil.splitToListLong(param.getTrainSeatIds());
-//        List<List<Long>> idPartitionList = Lists.partition(trainSeatIdList, 1000);
-//        for (List<Long> partitionList : idPartitionList) {
-//            int count = trainSeatMapper.batchPublish(trainNumber.getId(),partitionList);
-//            if (count!=partitionList.size()){
-//                throw new BusinessException("部分座位不满足条件，请重新查询【初始】状态的座位进行放票");
-//            }
-//        }
-//    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public void publish(PublishTicketParam param) {
+        BeanValidator.check(param);
+        TrainNumber trainNumber = trainNumberMapper.findByName(param.getTrainNumber());
+        if (trainNumber == null) {
+            throw new BusinessException("车次不存在");
+        }
+        List<Long> trainSeatIdList = StringUtil.splitToListLong(param.getTrainSeatIds());
+        List<List<Long>> idPartitionList = Lists.partition(trainSeatIdList, 1000);
+        for (List<Long> partitionList : idPartitionList) {
+            int count = trainSeatMapper.batchPublish(trainNumber.getId(), partitionList);
+            if (count != partitionList.size()) {
+                throw new BusinessException("部分座位不满足条件，请重新查询【初始】状态的座位进行放票");
+            }
+        }
+    }
 }
 
 
