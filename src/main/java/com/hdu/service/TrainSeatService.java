@@ -34,6 +34,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.codehaus.jackson.type.TypeReference;
 
 import javax.annotation.Resource;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -149,16 +150,6 @@ public class TrainSeatService {
             fromLocalDateTime = fromLocalDateTime.plusMinutes(detail.getRelativeMinute() + detail.getWaitMinute());
         }
         transactionService.batchInsertSeat(list);
-    }
-
-    // 这种写法是错误的，请一定重视
-    @Transactional(rollbackFor = Exception.class)
-    public void batchInsertSeat(List<TrainSeat> list) {
-        List<List<TrainSeat>> trainTicketPartitionList = Lists.partition(list, 1000);
-        trainTicketPartitionList.parallelStream().forEach(partitionList -> {
-            // 批量插入
-            trainSeatMapper.batchInsert(partitionList);
-        });
     }
 
     private Map<Integer, Integer> splitSeatMoney(String money) {
@@ -303,10 +294,15 @@ public class TrainSeatService {
              * {2,3}:5,{3,4}:3,{4,5}:10  -> left:3 获取所有段最少的座位
              */
             int curFromStationId = param.getFromStationId();
+            int baseStationId = curFromStationId;
             int targetToStationId = param.getToStationId();
+
             long min = Long.MAX_VALUE;
             boolean isSuccess = false;
             String redisKey = number + "_" + param.getDate() + "_Count";
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+            ZoneId zoneId = ZoneId.systemDefault();
+
 
             while (true) {
                 TrainNumberDetail detail = detailMap.get(curFromStationId);
@@ -314,7 +310,6 @@ public class TrainSeatService {
                     log.error("detail is null, stationId:{}, number:{}", curFromStationId, number);
                     break;
                 }
-
                 // 从redis里取出本短详情剩余的座位，并更新整体最小的座位数
                 min = Math.min(min, NumberUtils.toLong(trainCacheService.hget(redisKey, detail.getFromStationId() + "_" + detail.getToStationId()), 0L));
 
@@ -327,7 +322,30 @@ public class TrainSeatService {
                 curFromStationId = detail.getToStationId();
             }
             if (isSuccess) {
-                dtoList.add(new TrainNumberLeftDto(trainNumber.getId(), number, min));
+                String duringTime = "0";
+                String showStart = "0";
+                String showEnd = "0";
+                int trainNumberId = trainNumber.getId();
+                TrainSeat fromStationTrainSeat = trainSeatMapper.selectByFromStationId(param.getDate(), trainNumberId, baseStationId);
+                TrainSeat toStationTrainSeat = trainSeatMapper.selectByToStationId(param.getDate(), trainNumberId, targetToStationId);
+                if (fromStationTrainSeat != null && toStationTrainSeat != null) {
+                    Date trainStart = fromStationTrainSeat.getTrainStart();
+                    Date trainEnd = toStationTrainSeat.getTrainEnd();
+                    Duration duration = Duration.between(trainStart.toInstant(), trainEnd.toInstant());
+                    long hours = duration.toHours();
+                    long minutes = duration.minusHours(hours).toMinutes();
+                    duringTime = String.format("%02d:%02d", hours, minutes);
+                    showStart = LocalDateTime.ofInstant(trainStart.toInstant(), zoneId).format(formatter);
+                    showEnd = LocalDateTime.ofInstant(trainEnd.toInstant(), zoneId).format(formatter);
+                }
+                dtoList.add(new TrainNumberLeftDto(
+                        trainNumber.getId(),
+                        number,
+                        min,
+                        showStart,
+                        showEnd,
+                        duringTime
+                ));
             }
         });
         return dtoList;

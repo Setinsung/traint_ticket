@@ -14,11 +14,15 @@ public interface TrainSeatMapper {
 
     TrainSeat selectByPrimaryKey(Long id);
 
+    TrainSeat selectByFromStationId(@Param("ticket") String ticket, @Param("trainNumberId") int trainNumberId, @Param("fromStationId") int fromStationId);
+
+    TrainSeat selectByToStationId(@Param("ticket") String ticket, @Param("trainNumberId") int trainNumberId, @Param("toStationId") int toStationId);
+
     int updateByPrimaryKeySelective(TrainSeat record);
 
     int updateByPrimaryKey(TrainSeat record);
 
-//    @InsertProvider(type = TrainSeatProvider.class,method = "batchInsert")
+    //    @InsertProvider(type = TrainSeatProvider.class,method = "batchInsert")
     void batchInsert(@Param("list") List<TrainSeat> list);
 
     List<TrainSeat> searchList(@Param("trainNumberId") int trainNumberId, @Param("ticket") String ticket,
@@ -32,15 +36,15 @@ public interface TrainSeatMapper {
 
     int batchPublish(@Param("trainNumberId") int trainNumberId, @Param("trainSeatIdList") List<Long> trainSeatIdList);
 
-    List<TrainSeat> getToPlaceSeatList(@Param("trainNumberId") int trainNumberId,@Param("carriageNum") Integer carriageNum,
+    List<TrainSeat> getToPlaceSeatList(@Param("trainNumberId") int trainNumberId, @Param("carriageNum") Integer carriageNum,
                                        @Param("rowNum") Integer rowNum, @Param("seatNum") Integer seatNum,
-                                       @Param("fromStationIdList") List<Integer> fromStationIdList,@Param("ticket") String ticket);
+                                       @Param("fromStationIdList") List<Integer> fromStationIdList, @Param("ticket") String ticket);
 
     int batchPlace(@Param("trainNumberId") int trainNumberId, @Param("idList") List<Long> idList,
                    @Param("travellerId") long travellerId, @Param("userId") long userId);
 
     int batchRollbackPlace(@Param("trainSeat") TrainSeat trainSeat, @Param("fromStationIdList") List<Integer> fromStationIdList);
 
-    void cancelSeat(@Param("trainNum") int trainNumberId,@Param("ticket") String ticket,@Param("carriageNum") Integer carriageNum,
-                    @Param("rowNum") Integer rowNum,@Param("seatNum") Integer seatNum,@Param("userId") long userId,@Param("travellerId") long travellerId);
+    void cancelSeat(@Param("trainNum") int trainNumberId, @Param("ticket") String ticket, @Param("carriageNum") Integer carriageNum,
+                    @Param("rowNum") Integer rowNum, @Param("seatNum") Integer seatNum, @Param("userId") long userId, @Param("travellerId") long travellerId);
 }

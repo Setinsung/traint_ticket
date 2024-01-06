@@ -14,4 +14,11 @@ public class TrainNumberLeftDto {
     private String number;
 
     private long leftCount;
+
+    private String showStart;
+
+    private String showEnd;
+
+    private String duringTime;
+
 }

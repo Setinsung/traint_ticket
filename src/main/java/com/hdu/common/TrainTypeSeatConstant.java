@@ -108,7 +108,7 @@ public class TrainTypeSeatConstant {
 
         // 最后一个车厢特等座
         // 倒数第二个车厢一等座
-        seatCarriageLevelTable.put(TrainType.CRH5, crh5CarriageRowTotal.size() - 1, TrainSeatLevel.TOP_GRADE);
+        seatCarriageLevelTable.put(TrainType.CRH5, crh5CarriageRowTotal.size(), TrainSeatLevel.TOP_GRADE);
         seatCarriageLevelTable.put(TrainType.CRH5, crh5CarriageRowTotal.size() - 1, TrainSeatLevel.GRADE_1);
     }
 

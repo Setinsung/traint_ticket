@@ -30,6 +30,29 @@
         from train_seat
         where id = #{id,jdbcType=BIGINT}
     </select>
+    <select id="selectByFromStationId" resultMap="BaseResultMap" parameterType="map">
+        select
+        <include refid="Base_Column_List"/>
+        from train_seat
+        where
+        status = 1
+        and ticket = #{ticket}
+        and train_number_id = #{trainNumberId, jdbcType=INTEGER}
+        and from_station_id = #{fromStationId, jdbcType=INTEGER}
+        LIMIT 1
+    </select>
+    <select id="selectByToStationId" resultMap="BaseResultMap" parameterType="map">
+        select
+        <include refid="Base_Column_List"/>
+        from train_seat
+        where
+        status = 1
+        and ticket = #{ticket}
+        and train_number_id = #{trainNumberId, jdbcType=INTEGER}
+        and to_station_id = #{toStationId, jdbcType=INTEGER}
+        LIMIT 1
+    </select>
+
     <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
     delete from train_seat
     where id = #{id,jdbcType=BIGINT}
