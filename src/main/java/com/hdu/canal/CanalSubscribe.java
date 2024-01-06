@@ -111,7 +111,7 @@ public class CanalSubscribe implements ApplicationListener<ContextRefreshedEvent
         if (schemaName.contains("train_ticket_seat")){ // 处理座位变更
             trainSeatService.handle(columns,eventType);
         } else if (tableName.equals("train_number")){ // 处理车次变更
-//            trainNumberService.handle(columns,eventType);
+            trainNumberService.handle(columns,eventType);
         }else {
             log.info("drop table,need care");
         }

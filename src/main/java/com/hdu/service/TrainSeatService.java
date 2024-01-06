@@ -45,6 +45,9 @@ public class TrainSeatService {
     @Resource
     private TransactionService transactionService;
 
+    @Resource
+    private TrainCacheService trainCacheService;
+
     public List<TrainSeat> searchList(TrainSeatSearchParam param, PageQuery pageQuery) {
         BeanValidator.check(param);
         BeanValidator.check(pageQuery);
@@ -219,35 +222,35 @@ public class TrainSeatService {
         }
         log.info("train seat update, trainSeat:{}", trainSeat);
 
-//        /**
-//         * 1、指定座位是否被占
-//         * key：车次_日期，D386_20201211
-//         * value：0，空闲，1，占座
-//         *
-//         * 2、每个座位详情剩余座位
-//         * key：车次_日期_Count,D386_20201211_Count
-//         * value：实际座位数
-//         */
-//        TrainNumber trainNumber = trainNumberMapper.selectByPrimaryKey(trainSeat.getTrainNumberId());
-//        if (trainSeat.getStatus() == 1) { // 放票
-//            trainCacheService.hset(trainNumber.getName() + "_" + trainSeat.getTicket(),
-//                    trainSeat.getCarriageNumber() + "_" + trainSeat.getRowNumber() + "_" + trainSeat.getSeatNumber() + "_" +
-//                            trainSeat.getFromStationId() + "_" + trainSeat.getToStationId(), "0");
-//            trainCacheService.hincrBy(trainNumber.getName() + "_" + trainSeat.getTicket() + "_Count",
-//                    trainSeat.getFromStationId() + "_" + trainSeat.getToStationId(),
-//                    1l);
-//            log.info("seat+1,trainNumber:{},trainSeat:{}", trainNumber.getName(), trainSeat);
-//        } else if (trainSeat.getStatus() == 2) { // 占票
-//            trainCacheService.hset(trainNumber.getName() + "_" + trainSeat.getTicket(),
-//                    trainSeat.getCarriageNumber() + "_" + trainSeat.getRowNumber() + "_" + trainSeat.getSeatNumber() + "_" +
-//                            trainSeat.getFromStationId() + "_" + trainSeat.getToStationId(), "1");
-//            trainCacheService.hincrBy(trainNumber.getName() + "_" + trainSeat.getTicket() + "_Count",
-//                    trainSeat.getFromStationId() + "_" + trainSeat.getToStationId(),
-//                    -1l);
-//            log.info("seat-1,trainNumber:{},trainSeat:{}", trainNumber.getName(), trainSeat);
-//        } else {
-//            log.info("status update not 1 or 2, no need care");
-//        }
+        /**
+         * 1、指定座位是否被占
+         * key：车次_日期，D386_20201211
+         * value：0，空闲，1，占座
+         *
+         * 2、每个座位详情剩余座位
+         * key：车次_日期_Count,D386_20201211_Count
+         * value：实际座位数
+         */
+        TrainNumber trainNumber = trainNumberMapper.selectByPrimaryKey(trainSeat.getTrainNumberId());
+        if (trainSeat.getStatus() == 1) { // 放票
+            trainCacheService.hset(trainNumber.getName() + "_" + trainSeat.getTicket(),
+                    trainSeat.getCarriageNumber() + "_" + trainSeat.getRowNumber() + "_" + trainSeat.getSeatNumber() + "_" +
+                            trainSeat.getFromStationId() + "_" + trainSeat.getToStationId(), "0");
+            trainCacheService.hincrBy(trainNumber.getName() + "_" + trainSeat.getTicket() + "_Count",
+                    trainSeat.getFromStationId() + "_" + trainSeat.getToStationId(),
+                    1L);
+            log.info("seat+1,trainNumber:{},trainSeat:{}", trainNumber.getName(), trainSeat);
+        } else if (trainSeat.getStatus() == 2) { // 占票
+            trainCacheService.hset(trainNumber.getName() + "_" + trainSeat.getTicket(),
+                    trainSeat.getCarriageNumber() + "_" + trainSeat.getRowNumber() + "_" + trainSeat.getSeatNumber() + "_" +
+                            trainSeat.getFromStationId() + "_" + trainSeat.getToStationId(), "1");
+            trainCacheService.hincrBy(trainNumber.getName() + "_" + trainSeat.getTicket() + "_Count",
+                    trainSeat.getFromStationId() + "_" + trainSeat.getToStationId(),
+                    -1L);
+            log.info("seat-1,trainNumber:{},trainSeat:{}", trainNumber.getName(), trainSeat);
+        } else {
+            log.info("status update not 1 or 2, no need care");
+        }
     }
 }
 
