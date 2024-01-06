@@ -5,27 +5,33 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Table;
-import com.hdu.common.PageQuery;
-import com.hdu.common.TrainSeatLevel;
-import com.hdu.common.TrainType;
-import com.hdu.common.TrainTypeSeatConstant;
+import com.hdu.common.*;
 import com.hdu.dao.TrainNumberDetailMapper;
 import com.hdu.dao.TrainNumberMapper;
+import com.hdu.dto.TrainNumberLeftDto;
+import com.hdu.es.EsClient;
 import com.hdu.exception.BusinessException;
 import com.hdu.model.TrainNumber;
 import com.hdu.model.TrainNumberDetail;
 import com.hdu.model.TrainSeat;
+import com.hdu.reqparm.FrontSearchParam;
 import com.hdu.reqparm.GenerateTicketParam;
 import com.hdu.reqparm.PublishTicketParam;
 import com.hdu.reqparm.TrainSeatSearchParam;
 import com.hdu.seatDao.TrainSeatMapper;
 import com.hdu.utils.BeanValidator;
+import com.hdu.utils.JsonMapper;
 import com.hdu.utils.StringUtil;
 import javafx.util.Pair;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
+import org.apache.commons.lang3.math.NumberUtils;
+import org.elasticsearch.action.get.GetRequest;
+import org.elasticsearch.action.get.GetResponse;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.codehaus.jackson.type.TypeReference;
 
 import javax.annotation.Resource;
 import java.time.LocalDateTime;
@@ -46,7 +52,13 @@ public class TrainSeatService {
     private TransactionService transactionService;
 
     @Resource
+    private TrainNumberService trainNumberService;
+
+    @Resource
     private TrainCacheService trainCacheService;
+
+    @Resource
+    private EsClient esClient;
 
     public List<TrainSeat> searchList(TrainSeatSearchParam param, PageQuery pageQuery) {
         BeanValidator.check(param);
@@ -251,6 +263,74 @@ public class TrainSeatService {
         } else {
             log.info("status update not 1 or 2, no need care");
         }
+    }
+
+    public List<TrainNumberLeftDto> FrontSearch(FrontSearchParam param) throws Exception {
+        BeanValidator.check(param);
+        List<TrainNumberLeftDto> dtoList = Lists.newArrayList();
+        // 从es里获取满足条件的车次
+        GetRequest getRequest = new GetRequest(TrainEsConstant.INDEX, TrainEsConstant.TYPE, param.getFromStationId() + "_" + param.getToStationId());
+        GetResponse getResponse = esClient.get(getRequest);
+        if (getResponse == null) {
+            throw new BusinessException("数据查询失败，请重试");
+        }
+        Map<String, Object> map = getResponse.getSourceAsMap();
+        if (MapUtils.isEmpty(map)) {
+            return dtoList;
+        }
+
+        String trainNumbers = (String) map.get(TrainEsConstant.COLUMN_TRAIN_NUMBER); // D9,D386
+        // 拆分出所有车次
+        List<String> numberList = Splitter.on(",").trimResults().omitEmptyStrings().splitToList(trainNumbers);
+
+        numberList.parallelStream().forEach(number -> {
+            TrainNumber trainNumber = trainNumberService.findByNameFromCache(number);
+            if (trainNumber == null) {
+                return;
+            }
+            String detailStr = trainCacheService.get("TN_" + number);
+            List<TrainNumberDetail> detailList = JsonMapper.string2Obj(detailStr, new TypeReference<List<TrainNumberDetail>>() {
+            });
+            Map<Integer, TrainNumberDetail> detailMap = Maps.newHashMap();
+            detailList.stream().forEach(detail -> detailMap.put(detail.getFromStationId(), detail));
+            /**
+             * detailList:{1,2},{2,3},{3,4}
+             * 1->{1,2},2->{2,3} ... 5 -> {5,6}
+             * param:2->5
+             * target:{2,3},{3,4},{4,5}
+             * detailMap 2->{2,3}->3->{3,4}->4->{4,5}
+             *
+             * {2,3}:5,{3,4}:3,{4,5}:10  -> left:3 获取所有段最少的座位
+             */
+            int curFromStationId = param.getFromStationId();
+            int targetToStationId = param.getToStationId();
+            long min = Long.MAX_VALUE;
+            boolean isSuccess = false;
+            String redisKey = number + "_" + param.getDate() + "_Count";
+
+            while (true) {
+                TrainNumberDetail detail = detailMap.get(curFromStationId);
+                if (detail == null) {
+                    log.error("detail is null, stationId:{}, number:{}", curFromStationId, number);
+                    break;
+                }
+
+                // 从redis里取出本短详情剩余的座位，并更新整体最小的座位数
+                min = Math.min(min, NumberUtils.toLong(trainCacheService.hget(redisKey, detail.getFromStationId() + "_" + detail.getToStationId()), 0L));
+
+                if (detail.getToStationId() == targetToStationId) {
+                    isSuccess = true;
+                    break;
+                }
+
+                // 下次查询的起始站是本次详情的到达站
+                curFromStationId = detail.getToStationId();
+            }
+            if (isSuccess) {
+                dtoList.add(new TrainNumberLeftDto(trainNumber.getId(), number, min));
+            }
+        });
+        return dtoList;
     }
 }
 

@@ -2,6 +2,7 @@ package com.hdu.service;
 
 import com.alibaba.otter.canal.protocol.CanalEntry;
 import com.google.common.base.Splitter;
+import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -27,11 +28,12 @@ import org.elasticsearch.action.get.MultiGetResponse;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.springframework.stereotype.Service;
-
+import com.google.common.cache.Cache;
 import javax.annotation.Resource;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 @Service
 @Slf4j
@@ -190,6 +192,24 @@ public class TrainNumberService {
             throw new RuntimeException("es bulk failure");
         }
     }
+
+    private static Cache<String, TrainNumber> trainNumberCache = CacheBuilder
+            .newBuilder()
+            .expireAfterWrite(5, TimeUnit.MINUTES)
+            .build();
+
+    public TrainNumber findByNameFromCache(String name) {
+        TrainNumber trainNumber = trainNumberCache.getIfPresent(name);
+        if (trainNumber != null) {
+            return trainNumber;
+        }
+        trainNumber = trainNumberMapper.findByName(name);
+        if (trainNumber != null) {
+            trainNumberCache.put(name, trainNumber);
+        }
+        return trainNumber;
+    }
+
 }
 
 

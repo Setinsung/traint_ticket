@@ -55,6 +55,19 @@ public class TrainCacheService {
         }
     }
 
+    public String hget(String cacheKey, String field) {
+        ShardedJedis shardedJedis = null;
+        try {
+            shardedJedis = instance();
+            return shardedJedis.hget(cacheKey, field);
+        } catch (Exception e) {
+            log.error("jedis.hget exception, cacheKey:{},field:{}", cacheKey, field, e);
+            throw e;
+        }finally {
+            safeClose(shardedJedis);
+        }
+    }
+
     public void hset(String key, String field, String value) {
         ShardedJedis shardedJedis = null;
         try {
