@@ -6,7 +6,15 @@ logging:
     seatMappers: debug
 server:
   port: 8084
+  servlet:
+    jsp:
+      init-parameters:
+        development: true #开启jsp开发模式，自动更新
 spring:
+  mvc:
+    view:
+      prefix: /
+      suffix: .jsp
   datasource-master:
     type: com.zaxxer.hikari.HikariDataSource
     driver-class-name: com.mysql.jdbc.Driver

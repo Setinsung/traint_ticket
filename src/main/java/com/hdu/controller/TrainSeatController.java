@@ -30,7 +30,7 @@ public class TrainSeatController {
     @Resource
     private TrainStationService trainStationService;
 
-    @PostMapping("/search")
+    @RequestMapping("/search")
     public JsonData search(TrainSeatSearchParam param, PageQuery pageQuery) {
         int total = trainSeatService.countList(param);
         if (total == 0) {
@@ -66,13 +66,13 @@ public class TrainSeatController {
         return JsonData.success(PageResult.<TrainSeatDto>builder().data(dtoList).total(total).build());
     }
 
-    @GetMapping("/generate")
+    @PostMapping("/generate")
     public JsonData generate(GenerateTicketParam param) {
         trainSeatService.generate(param);
         return JsonData.success();
     }
 
-    @GetMapping("/publish")
+    @PostMapping("/publish")
     public JsonData publish(PublishTicketParam param){
         trainSeatService.publish(param);
         return JsonData.success();

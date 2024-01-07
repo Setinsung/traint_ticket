@@ -59,8 +59,8 @@ public class TrainNumberDetailController {
         return JsonData.success();
     }
 
-    @DeleteMapping
-    public JsonData delete(@RequestParam("id") Integer id){
+    @DeleteMapping("{id}")
+    public JsonData delete(@PathVariable("id") Integer id){
         trainNumberDetailService.delete(id);
         return JsonData.success();
     }
