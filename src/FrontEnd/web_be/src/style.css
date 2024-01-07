@@ -1,0 +1,17 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+li {
+  list-style: none
+}
+.el-table__row.statistics-warning-row {
+  background: #eef1f8;
+} 
+.el-table__row.statistics-commom-row {
+  background: #fff !important;
+} 
+.el-table {
+  --el-table-border-color: #b0cedd;
+  }
