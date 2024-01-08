@@ -66,6 +66,42 @@ public class TrainSeatController {
         return JsonData.success(PageResult.<TrainSeatDto>builder().data(dtoList).total(total).build());
     }
 
+    @PostMapping("/search2")
+    public JsonData search2(TrainSeatSearchParam param, PageQuery pageQuery) {
+        int total = trainSeatService.countList(param);
+        if (total == 0) {
+            return JsonData.success(PageResult.<TrainSeat>builder().total(0).build());
+        }
+        List<TrainSeat> seatList = trainSeatService.searchList(param, pageQuery);
+        if (CollectionUtils.isEmpty(seatList)) {
+            return JsonData.success(PageResult.<TrainSeatDto>builder().total(total).build());
+        }
+        List<TrainStation> trainStationList = trainStationService.getAll();
+        Map<Integer, String> stationMap = trainStationList.stream().collect(Collectors.toMap(TrainStation::getId, TrainStation::getName));
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        ZoneId zoneId = ZoneId.systemDefault();
+        List<TrainSeatDto> dtoList = seatList.stream().map(trainSeat -> {
+            TrainSeatDto dto = new TrainSeatDto();
+            dto.setId(trainSeat.getId());
+            dto.setFromStationId(trainSeat.getFromStationId());
+            dto.setFromStation(stationMap.get(trainSeat.getFromStationId()));
+            dto.setToStationId(trainSeat.getToStationId());
+            dto.setToStation(stationMap.get(trainSeat.getToStationId()));
+            dto.setTrainNumberId(trainSeat.getTrainNumberId());
+            dto.setTrainNumber(param.getTrainNumber());
+            dto.setShowStart(LocalDateTime.ofInstant(trainSeat.getTrainStart().toInstant(), zoneId).format(formatter));
+            dto.setShowEnd(LocalDateTime.ofInstant(trainSeat.getTrainEnd().toInstant(), zoneId).format(formatter));
+            dto.setSeatLevel(trainSeat.getSeatLevel());
+            dto.setStatus(trainSeat.getStatus());
+            dto.setCarriageNumber(trainSeat.getCarriageNumber());
+            dto.setRowNumber(trainSeat.getRowNumber());
+            dto.setSeatNumber(trainSeat.getSeatNumber());
+            dto.setMoney(trainSeat.getMoney());
+            return dto;
+        }).collect(Collectors.toList());
+        return JsonData.success(PageResult.<TrainSeatDto>builder().data(dtoList).total(total).build());
+    }
+
     @PostMapping("/generate")
     public JsonData generate(GenerateTicketParam param) {
         trainSeatService.generate(param);
